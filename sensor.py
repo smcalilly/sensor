@@ -1,22 +1,15 @@
 import spidev
 from numpy import interp
 
-import datetime
-from sys import getsizeof
-
 spi = spidev.SpiDev()
 spi.open(0, 0)
 spi.max_speed_hz = 1000000
 
 class Sensor:
     def __init__(self, channel):
-        self.date_time = self._get_time()
         self.channel_reading = self._read_channel(channel)
         self.percentage = self.get_percentage()
         self.volts = self._convert_volts()
-    
-    def _get_time(self):
-        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     def get_percentage(self):
         return interp(self.channel_reading, [0, 1023], [100, 0])
