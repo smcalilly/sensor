@@ -4,23 +4,26 @@ import time
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import io
+import sys
 
+# setup path to import db
+sys.path.insert(0, '..')
+import db
+
+# setup db connection
+db = db.Database('../database.db')
 
 app = Flask(__name__)
 
 def get_local_time(seconds):
     return time.ctime(seconds)
 
-def get_last_data():
-    conn = sqlite3.connect('../database.db')
-    cursor = conn.cursor()
 
-    for row in cursor.execute("SELECT * FROM soil_readings ORDER BY timestamp DESC LIMIT 1;"):
-        time = get_local_time(row[1])
-        mean = row[2]
-    
-    conn.close()
-    return time, mean
+def get_most_recent_reading():
+    query = "SELECT * FROM soil_readings ORDER BY timestamp DESC LIMIT 1;"
+    rows = db.query(query)
+    return rows[0]
+
 
 def get_historical_data(num_samples):
     conn = sqlite3.connect('../database.db')
@@ -49,11 +52,11 @@ def get_count():
 # main route
 @app.route('/')
 def index():
-    time, mean = get_last_data()
+    reading = get_most_recent_reading()
     
     template_data = {
-        'time': time,
-        'mean': mean
+        'time': get_local_time(reading[1]),
+        'mean': reading[2]
     }
     
     return render_template('index.html', **template_data)

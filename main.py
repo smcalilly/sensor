@@ -1,61 +1,65 @@
 from sensor import Sensor
 import numpy
 import time
-import sqlite3
 import os
 import sys
 import db
 
 DB_NAME = 'database.db'
 os.chdir(os.path.dirname(sys.argv[0]))
+database = db.Database(DB_NAME)
 
 SOIL_CHANNEL = 0
 TEMP_CHANNEL = 1
-
-soil_readings = []
+STOP_TIME = time.time() + 5
 temp_readings = []
-stop_time = time.time() + 5
 
-while time.time() < stop_time:
-    try:
-        soil_reading = Sensor(SOIL_CHANNEL)
-        soil_readings.append(soil_reading.percentage)
-    except Exception as e:
-        print(e)
-
-soil = {
-    'time': stop_time,
-    'mean': numpy.mean(soil_readings),
-    'std': numpy.std(soil_readings),
-    'min': numpy.min(soil_readings),
-    'max': numpy.max(soil_readings)
-}
-
-air_temp = {}
+def read_soil():
+    return Sensor(SOIL_CHANNEL)
 
 
-def log_reading(reading):
-    print('updating table with reading')
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO soil_readings values(?, ?, ?, ?, ?, ?)", (hash(tuple(reading.items())), reading['time'], reading['mean'], reading['std'], reading['min'], reading['max']))
-    conn.commit()
-    conn.close()
+def read_sensors():
+    soil_readings = []
+    
+    while time.time() < STOP_TIME:
+        try:
+            reading = read_soil()
+            soil_readings.append(reading.percentage)
+        except Exception as e:
+            print('sensing went awry!')
+            print(e)
+            
+    return soil_readings
 
-LOG_SOIL =  {
-    'operation': "INSERT INTO soil_readings values(?, ?, ?, ?, ?, ?)",
-    'args': (hash(tuple(reading.items())), reading['time'], reading['mean'], reading['std'], reading['min'], reading['max']))    
-}
+
+def calculate_soil_moisture(readings):
+    return {
+        'time': STOP_TIME,
+        'mean': numpy.mean(readings),
+        'std': numpy.std(readings),
+        'min': numpy.min(readings),
+        'max': numpy.max(readings)
+    }
+
+
+def save_measurements(soil):
+    params = {
+        'operation': "INSERT INTO soil_readings values(?, ?, ?, ?, ?, ?)",
+        'args': (hash(tuple(soil.items())), soil['time'], soil['mean'], soil['std'], soil['min'], soil['max']) 
+    }
+    
+    database.update(params)
+
 
 def __main__():
-    #log_reading(soil)
-    database = db.Database(DB_NAME)
-    print(database)
-    database.update(LOG_SOIL)
-    
-    
+    # get readings
+    readings = read_sensors()
+    soil = calculate_soil_moisture(readings)
+    save_measurements(soil)
+
     soil_reading_count = database.query("select COUNT(mean) from soil_readings")
     print(soil_reading_count)
     
 if __name__ == "__main__":
     __main__()
+    
