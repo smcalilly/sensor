@@ -1,8 +1,5 @@
 import sqlite3
 
-LOCATION = '../database.db'
-# db = Database(LOCATION)
-
 class Database:
     def __init__(self, location):
         self.location = self._set_location(location)
@@ -31,6 +28,7 @@ class Database:
         headers = cursor.fetchall()
         print(headers)
             
+
     def _close_connection(self):
         return self.connection.close()
     
@@ -43,26 +41,15 @@ class Database:
         return self.connection.cursor()
     
 
-            
-    
     def query(self, query):
         """ Queries the database and returns a list of items. """
         items = []
-        
-        if not self.connection:
-            self._create_connection()
             
         cursor = self._cursor()
         for row in cursor.execute(query):
             items.append(row)
             
-#        row = cursor.fetchone()
-        #names = row.keys()
-        #print('query row')
-        #print(names)
         self._commit()
-            
-        #self._close_connection()
         
         return items
     
@@ -72,7 +59,6 @@ class Database:
             cursor = self._cursor()
             cursor.execute(operation['operation'], operation['args'])
             self._commit()
-            #self._close_connection()
         except Exception as err:
             print(err)
         

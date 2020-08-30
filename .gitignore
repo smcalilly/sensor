@@ -1,2 +1,5 @@
 scratches.py
 
+__pycache__/
+*.pyc
+*.log
