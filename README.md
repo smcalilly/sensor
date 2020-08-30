@@ -6,4 +6,4 @@ This repo has three things:
 
 The sensor code must be ran as a cron job on the RPi.
 
-Saving my work without writing much documentation, so anybody who tries to use this repo might have a hard time (myself included).
+Saving my work without refactoring or writing much documentation, so anybody who tries to use this repo might have a hard time (myself included).
