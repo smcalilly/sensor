@@ -14,3 +14,9 @@ I'm saving my work without refactoring or writing much documentation, so anybody
 - jumper cables
 - capacitative touch sensor
 - SPI
+
+## thanks
+to the combined knowledge of these people:
+- http://foxbotindustries.com/raspberry-pi-soil-moisture-sensor/
+- https://www.raspberrypi-spy.co.uk/2013/10/analogue-sensors-on-the-raspberry-pi-using-an-mcp3008/
+- https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
